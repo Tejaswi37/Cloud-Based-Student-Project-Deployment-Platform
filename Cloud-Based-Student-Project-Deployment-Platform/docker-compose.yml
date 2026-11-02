@@ -1,0 +1,15 @@
+services:
+  student-platform:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      SECRET_KEY: "replace-this-with-a-long-random-value"
+      DATABASE_PATH: /app/data/students.db
+    volumes:
+      - student_data:/app/data
+      - student_uploads:/app/uploads
+    restart: unless-stopped
+volumes:
+  student_data:
+  student_uploads:

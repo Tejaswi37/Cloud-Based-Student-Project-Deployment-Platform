@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: student-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: student-platform
+  template:
+    metadata:
+      labels:
+        app: student-platform
+    spec:
+      containers:
+      - name: student-platform
+        image: student-platform:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: SECRET_KEY
+          value: "replace-this-with-a-long-random-value"
+        - name: DATABASE_PATH
+          value: /app/data/students.db
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+        - name: uploads
+          mountPath: /app/uploads
+        readinessProbe:
+          httpGet: {path: /health, port: 5000}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: {path: /health, port: 5000}
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: student-platform-data
+      - name: uploads
+        emptyDir: {}
