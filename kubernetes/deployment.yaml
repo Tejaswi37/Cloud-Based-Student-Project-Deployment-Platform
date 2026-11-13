@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployhub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deployhub
+  template:
+    metadata:
+      labels:
+        app: deployhub
+    spec:
+      containers:
+        - name: deployhub
+          image: deployhub:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: deployhub-secrets
+                  key: secret-key
+            - name: DATABASE_PATH
+              value: /data/platform.db
+          volumeMounts:
+            - name: platform-data
+              mountPath: /data
+      volumes:
+        - name: platform-data
+          persistentVolumeClaim:
+            claimName: deployhub-pvc
